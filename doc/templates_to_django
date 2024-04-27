@@ -1,0 +1,4 @@
+to add view to Django:
+	- create view function
+	- create template file in /templates directory
+	- to refer to template in views.py use name of template file in quotes: 'index.html', Django will automatically find path to template (TEMPLATES variable in settings.py, DIRS contain path to template files (/templates))
