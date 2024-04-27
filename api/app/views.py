@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from ..api.settings import firebase
+from django.http import HttpRequest
+from django.conf import settings
 
 database = firebase.database()
 
