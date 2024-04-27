@@ -1,8 +1,16 @@
 from django.shortcuts import render
-from django.http import HttpRequest
-from django.conf import settings
+from ..api.settings import firebase
+from django.http import HttpResponse
 
 database = firebase.database()
 
 def index(request):
     return render(request, 'index.html')
+
+def staticfiles(request, filename):
+    static_path = os.path.join(os.path.abspath(__file__), "..", "..", "..", "static")
+    with open(os.path.join(static_path, filename), 'r') as f:
+        file_data = f.read()
+        response = HttpResponse(file_data)
+        response['Content-Type'] = 'text/css; charset=utf-8'
+    return response

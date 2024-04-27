@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api import views as api_views
+from app import views as app_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', api_views.index),
+    path('', app_views.index),
+    path('staticfiles/<str:filename>/', app_views.staticfiles), # can't use name 'static' (reserved for Django specifically)
 ]
