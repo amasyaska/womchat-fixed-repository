@@ -1,0 +1,2 @@
+to link static CSS/JS to HTML:
+	request endpoint 'staticfiles/{your filename}' from your HTML file (this endpoint is dynamic url and takes filename as an argument and returns file)
