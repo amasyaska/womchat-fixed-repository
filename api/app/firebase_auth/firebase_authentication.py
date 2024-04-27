@@ -6,11 +6,11 @@ import firebase_admin
 from app.models import User
 import os
 
-try:
-    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK_CREDENTIALS_PATH'))
-    default_app = firebase_admin.initialize_app(cred)
-except Exception:
-    raise FirebaseError('Firebase Admin SDK credentials not found.')
+# try:
+#     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK_CREDENTIALS_PATH'))
+#     default_app = firebase_admin.initialize_app(cred)
+# except Exception:
+#     raise FirebaseError('Firebase Admin SDK credentials not found.')
 
 class FirebaseAuthentication(authentication.BaseAuthentication):
     keyword = 'Bearer'

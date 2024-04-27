@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.contrib.auth.base_user import BaseUserManager
 import uuid
 
@@ -9,7 +10,7 @@ class CustomUserManager(BaseUserManager):
             email = self.normalize_email(email)
         user = self.model(
             username=username,
-            email=None,
+            email=email,
             **extra_fields
         )
         user.set_password(password)
@@ -29,22 +30,32 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, 
                         editable=False)
-    email = models.EmailField(unique=True, blank=True, null=True)
-    username = models.CharField(max_length=35, unique=True)
-    first_name = None
-    last_name = None
-    firebase_uid = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    username = models.CharField(max_length=35, unique=True, 
+                                blank=True, null=True)
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
 
-    def __str__(self) -> str:
-        if self.email:
-            return self.email
-        return self.username
-    
     class Meta:
         db_table = 'user'
         verbose_name = 'user'
         verbose_name_plural = 'users'
+
+    def clean(self) -> None:
+        if not self.username:
+            raise ValidationError(
+                "Username field can't be blank."
+            )
+        if self.email and User.objects.filter(email=self.email).count() > 0:
+            raise ValidationError(
+                "User with this email already exists."
+            )
+        return super().clean()
+
+    def __str__(self):
+        if self.email:
+            return self.email
+        return self.username if self.username else ''
+    
