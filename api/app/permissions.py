@@ -5,6 +5,8 @@ class IsNotAuthenticated(permissions.BasePermission):
     message = "Authenticated users can't register new account."
 
     def has_permission(self, request, view):
+        if view.get_view_name() == 'User Authenticate':
+            self.message = "Authenticated users can't login to another account."
         return not request.user.is_authenticated
     
 

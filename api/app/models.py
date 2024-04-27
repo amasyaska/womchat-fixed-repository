@@ -48,7 +48,8 @@ class User(AbstractUser):
             raise ValidationError(
                 "Username field can't be blank."
             )
-        if self.email and User.objects.filter(email=self.email).count() > 0:
+        if self.email and User.objects.filter(
+            email=self.email).exclude(id=self.id).exists():
             raise ValidationError(
                 "User with this email already exists."
             )
