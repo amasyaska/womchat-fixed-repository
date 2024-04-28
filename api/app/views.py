@@ -12,5 +12,8 @@ def staticfiles(request, filename):
     with open(os.path.join(static_path, filename), 'r') as f:
         file_data = f.read()
         response = HttpResponse(file_data)
-        response['Content-Type'] = 'text/css; charset=utf-8'
+        if (filename.split('.')[-1] == 'js'):
+            response['Content-Type'] = 'application/javascript; charset=utf-8'
+        if (filename.split('.')[-1] == 'css'):
+            response['Content-Type'] = 'text/css; charset=utf-8'
     return response
