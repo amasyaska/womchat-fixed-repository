@@ -65,7 +65,10 @@ class Chat(models.Model):
     '''
     one-to-many relationship between Chat and Message
     '''
-    pass
+    title = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class InstantMessage(models.Model):
@@ -78,6 +81,12 @@ class InstantMessage(models.Model):
 
     class Meta:
         ordering = ('date_added',)
+
+    def __str__(self) -> str:
+        text = self.text[:20]
+        if len(self.text) > 20:
+            text += '...'
+        return f' from {self.user} in {self.chat}: {text}'
 
 
 class UserToChat(models.Model):
