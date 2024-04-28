@@ -53,7 +53,6 @@ class UserRegisterView(APIView):
             user = serializer.create(serializer.validated_data)
             if user:
                 return Response(
-                    serializer.validated_data,
                     status=status.HTTP_200_OK
                 )
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -70,8 +69,7 @@ class UserAuthenticateView(APIView):
             if user is None:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             login(request, user)
-            return Response(serializer.validated_data,
-                            status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -84,7 +82,7 @@ class UserLogoutView(APIView):
 
 
 class UserDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (CustomIsAuthenticated,)
 
     def post(self, request):
         user = request.user
