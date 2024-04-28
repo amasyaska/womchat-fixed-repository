@@ -1,6 +1,7 @@
 import os
+from .models import InstantMessage
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import logout, login, update_session_auth_hash
 from rest_framework.views import APIView
 from rest_framework.generics import (RetrieveUpdateAPIView, 
@@ -41,7 +42,11 @@ def chat_json(request, chat_id):
         dct[message_id] = message_text
     return JsonResponse(dct)
     '''
-
+    message_to_user_and_text = dict()
+    message_to_user_and_text["messages"] = []
+    for message in InstantMessage.objects.filter(chat=chat_id):
+        message_to_user_and_text["messages"].append([message.id, message.user.id, message.text, message.date_added])
+    return JsonResponse(message_to_user_and_text)
     
 class UserRegisterView(CreateAPIView):
     permission_classes = (IsNotAuthenticated,)
@@ -91,7 +96,6 @@ class UserDeleteView(APIView):
         logout(request)
 
         return Response(status=status.HTTP_200_OK)
-    
 
 class UserEditView(RetrieveUpdateAPIView):
     permission_classes = (CustomIsAuthenticated,)
