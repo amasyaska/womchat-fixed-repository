@@ -48,3 +48,24 @@ class User(AbstractUser):
         db_table = 'user'
         verbose_name = 'user'
         verbose_name_plural = 'users'
+
+class PseudoUser(models.Model):
+    username = models.CharField(max_length=30)
+
+class Chat(models.Model):
+    '''
+    one-to-many relationship between Chat and Message
+    '''
+    pass
+
+class InstantMessage(models.Model):
+    text = models.TextField()
+    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+
+class UserToChat(models.Model):
+    '''
+    join table to implement many-to-many relationship between User and Chat
+    '''
+    user_id = models.ForeignKey(PseudoUser, on_delete=models.CASCADE)
+    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+
