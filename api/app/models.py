@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.contrib.auth.base_user import BaseUserManager
+from django.urls import reverse
 import uuid
 
 class CustomUserManager(BaseUserManager):
@@ -69,6 +70,9 @@ class Chat(models.Model):
 
     def __str__(self) -> str:
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse('app:send_message', args=[self.id])
 
 
 class InstantMessage(models.Model):

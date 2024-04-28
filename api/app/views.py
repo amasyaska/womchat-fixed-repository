@@ -1,5 +1,5 @@
 import os
-from .models import InstantMessage
+from .models import InstantMessage, Chat
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import logout, login, update_session_auth_hash
@@ -29,10 +29,6 @@ def staticfiles(request, filename):
     return response
 
 
-def chat(request):
-    return render(request, 'chat.html')
-
-
 def chat_json(request, chat_id):
     '''
     !!! implement check if user is allowed to read this chat here !!!
@@ -47,7 +43,8 @@ def chat_json(request, chat_id):
     for message in InstantMessage.objects.filter(chat=chat_id):
         message_to_user_and_text["messages"].append([message.id, message.user.id, message.text, message.date_added])
     return JsonResponse(message_to_user_and_text)
-    
+
+
 class UserRegisterView(CreateAPIView):
     permission_classes = (IsNotAuthenticated,)
     serializer_class = UserSerializer
@@ -97,6 +94,7 @@ class UserDeleteView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+
 class UserEditView(RetrieveUpdateAPIView):
     permission_classes = (CustomIsAuthenticated,)
     serializer_class = UserSerializer
@@ -122,3 +120,18 @@ class UserEditView(RetrieveUpdateAPIView):
             update_session_auth_hash(request, user)
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendMessageView(APIView):
+    permission_classes = (CustomIsAuthenticated,)
+
+    def post(self, request, chat_id):
+        chat = Chat.objects.get(id=chat_id)
+        message_text = request.data.get('message', None)
+        if not message_text:
+            raise ValueError('empty message.')
+        message = InstantMessage(text=message_text,
+                            chat=chat, user=request.user)
+        message.save()
+
+        return Response(status=status.HTTP_200_OK)
