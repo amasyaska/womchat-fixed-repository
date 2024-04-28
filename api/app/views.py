@@ -1,17 +1,16 @@
 import os
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.http import JsonResponse
-from app.models import InstantMessage, Chat
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, update_session_auth_hash
 from rest_framework.views import APIView
-from .serializers import UserRegisterSerializer, UserLoginSerializer
+from rest_framework.generics import (RetrieveUpdateAPIView, 
+    CreateAPIView)
+from .serializers import UserSerializer, UserLoginSerializer
 from .permissions import IsNotAuthenticated, CustomIsAuthenticated
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import (SessionAuthentication, 
-                                        authenticate)
+    authenticate)
 
 def index(request):
     return render(request, 'index.html')
@@ -44,11 +43,12 @@ def chat_json(request, chat_id):
     '''
 
     
-class UserRegisterView(APIView):
+class UserRegisterView(CreateAPIView):
     permission_classes = (IsNotAuthenticated,)
+    serializer_class = UserSerializer
 
     def post(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create(serializer.validated_data)
             if user:
@@ -91,3 +91,30 @@ class UserDeleteView(APIView):
         logout(request)
 
         return Response(status=status.HTTP_200_OK)
+    
+
+class UserEditView(RetrieveUpdateAPIView):
+    permission_classes = (CustomIsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        serializer = self.get_serializer(
+            instance=request.user)
+        data = serializer.data
+        data.pop('password')
+        return Response(data=data,
+                        status=status.HTTP_200_OK)
+    
+    def get_queryset(self):
+        return self.request.user
+
+    def update(self, request):
+        serializer = self.get_serializer(instance=request.user, 
+                                        data=request.data, 
+                                        partial=True)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.update(request.user, 
+                                    serializer.validated_data)
+            update_session_auth_hash(request, user)
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

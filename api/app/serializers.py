@@ -1,20 +1,30 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
 from .models import User
 
-class UserRegisterSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=35, required=True)
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
 
     def create(self, clean_data):
-        if not clean_data.get('username', None):
-            raise ValidationError(
-                "Username field can't be blank."
-            )
         user = User.objects.create_user(**clean_data)
         return user
+    
+    def update(self, instance, clean_data):
+        password = clean_data.pop('password', instance.password)
+
+        for key, value in clean_data.items():
+            setattr(instance, key, value)
+
+        instance.set_password(password)
+
+        instance.save()
+        return instance
+    
+    def save(self, **kwargs):
+        return super().save(**kwargs)
 
 
 class UserLoginSerializer(serializers.Serializer):
