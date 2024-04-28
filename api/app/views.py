@@ -42,7 +42,11 @@ def chat_json(request, chat_id):
         dct[message_id] = message_text
     return JsonResponse(dct)
     '''
-
+    message_to_user_and_text = dict()
+    message_to_user_and_text["messages"] = []
+    for message in InstantMessage.objects.filter(chat=chat_id):
+        message_to_user_and_text["messages"].append([message.id, message.user.id, message.text])
+    return JsonResponse(message_to_user_and_text)
     
 class UserRegisterView(APIView):
     permission_classes = (IsNotAuthenticated,)
