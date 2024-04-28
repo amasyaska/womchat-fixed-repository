@@ -22,9 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-    
-    def save(self, **kwargs):
-        return super().save(**kwargs)
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -46,4 +43,4 @@ class UserLoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     'Must include "password"'
                 )
-        return data
+        return data    

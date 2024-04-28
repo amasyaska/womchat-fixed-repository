@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework_swagger',
     'channels',
     'rest_framework',
     'corsheaders',
@@ -94,19 +95,6 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Firebase settings
-try:
-    config = {
-        "apiKey": os.getenv("FIREBASE_API_KEY"),
-        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-        "databaseURL": os.getenv("FIREBASE_DATABASE_URL"),
-        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET")
-    }
-    firebase = pyrebase.initialize_app(config)
-    auth = firebase.auth()
-except Exception:
-    raise Exception("Firebase configuration credentials not found.")
-
 # custom user model
 AUTH_USER_MODEL = 'app.User'
 
@@ -118,6 +106,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],
+    'DEFAULT_SCHEMA_CLASS': [
+        'rest_framework.schemas.coreapi.AutoSchema'
+    ],
 }
 
 # authentication backend
@@ -125,14 +116,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'app.authentication.EmailAuthBackend',
 ]
-
-# email settings
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = env_config("EMAIL_HOST")
-# EMAIL_PORT = env_config("EMAIL_PORT")
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = env_config("EMAIL_HOST_USER")
-# EMAIL_HOST_PASSWORD = env_config("EMAIL_HOST_PASSWORD")
 
 DATABASES = {
     'default': {

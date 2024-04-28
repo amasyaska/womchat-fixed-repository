@@ -4,7 +4,6 @@ from django.urls import path
 app_name = 'app'
 
 urlpatterns = [
-    path('', app_views.index, name='index'),
     path('registration/', 
         app_views.UserRegisterView.as_view(), name='registration'),
     path('login/', 
@@ -19,6 +18,7 @@ urlpatterns = [
         app_views.staticfiles), # can't use name 'static' (reserved for Django specifically)
     path('send/<int:chat_id>/', 
         app_views.SendMessageView.as_view(), name='send_message'),
+    path('chats/', app_views.AllUserChatsView.as_view(), name='chats'),
     path('chat/<int:chat_id>', 
         app_views.chat_json),
 ]

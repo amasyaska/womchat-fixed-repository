@@ -101,3 +101,6 @@ class UserToChat(models.Model):
                                 related_name='chats')
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE,
                                 related_name='users')
+    
+    def __str__(self) -> str:
+        return f'user: {self.user}, chat: {self.chat}'

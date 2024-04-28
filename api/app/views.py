@@ -6,7 +6,7 @@ from django.contrib.auth import logout, login, update_session_auth_hash
 from rest_framework.views import APIView
 from rest_framework.generics import (RetrieveUpdateAPIView, 
     CreateAPIView)
-from .serializers import UserSerializer, UserLoginSerializer
+from .serializers import (UserSerializer, UserLoginSerializer)
 from .permissions import IsNotAuthenticated, CustomIsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -135,3 +135,16 @@ class SendMessageView(APIView):
         message.save()
 
         return Response(status=status.HTTP_200_OK)
+    
+
+class AllUserChatsView(APIView):
+    permission_classes = (CustomIsAuthenticated,)
+
+    def get(self, request):
+        user_to_chats = request.user.chats.all()
+        data = {}
+        for user_to_chat in user_to_chats:
+            chat = user_to_chat.chat
+            data[chat.id] = [chat.title, 
+                            chat.messages.latest('date_added').text]
+        return Response(data=data, status=status.HTTP_200_OK)
