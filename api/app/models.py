@@ -42,7 +42,7 @@ class User(AbstractUser):
         db_table = 'user'
         verbose_name = 'user'
         verbose_name_plural = 'users'
-
+        
     def clean(self) -> None:
         if not self.username:
             raise ValidationError(
@@ -59,4 +59,21 @@ class User(AbstractUser):
         if self.email:
             return self.email
         return self.username if self.username else ''
-    
+      
+
+class Chat(models.Model):
+    '''
+    one-to-many relationship between Chat and Message
+    '''
+    pass
+
+class InstantMessage(models.Model):
+    text = models.TextField()
+    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+
+class UserToChat(models.Model):
+    '''
+    join table to implement many-to-many relationship between User and Chat
+    '''
+    user_id = models.ForeignKey(PseudoUser, on_delete=models.CASCADE)
+    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)

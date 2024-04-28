@@ -1,0 +1,8 @@
+MODELS:
+	Every chat contains messages (one-to-many relationship between Chat and InstantMessage)
+	
+	UserToChat is join table to implement many-to-many relationship between User and Chat, we use this table to find chats that belong to particular user
+
+URLS:
+	chat endpoint returns chat html file
+	chat/<int:chat_id> dynamic enpoint returns JSON that contains {<message_id> : <message_text>} pairs (frontend should change chat.html file using js to display returned messages in JSON file)
