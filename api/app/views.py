@@ -2,14 +2,17 @@ from django.shortcuts import render
 from ..api.settings import firebase
 from django.http import HttpResponse
 from django.http import JsonResponse
-
 from app.models import InstantMessage, Chat
-
-database = firebase.database()
+from rest_framework.views import APIView
+from .serializers import UserRegisterSerializer
+from .permissions import IsNotAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 def index(request):
     return render(request, 'index.html')
 
+  
 def staticfiles(request, filename):
     static_path = os.path.join(os.path.abspath(__file__), "..", "..", "..", "static")
     with open(os.path.join(static_path, filename), 'r') as f:
@@ -24,6 +27,7 @@ def staticfiles(request, filename):
 def chat(request):
     return render(request, 'chat.html')
 
+  
 def chat_json(request, chat_id):
     '''
     !!! implement check if user is allowed to read this chat here !!!
@@ -33,3 +37,18 @@ def chat_json(request, chat_id):
         dct[message_id] = message_text
     return JsonResponse(dct)
     '''
+
+    
+class UserRegisterView(APIView):
+    permission_classes = (IsNotAuthenticated,)
+
+    def post(self, request):
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.create(serializer.validated_data)
+            if user:
+                return Response(
+                    serializer.validated_data,
+                    status=status.HTTP_200_OK
+                )
+        return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -1,27 +1,52 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 from .models import User
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
+class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'firebase_uid', 'email', 'password', 'username']
+        fields = ('username', 'email', 'password')
 
-    def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
-    
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+    def create(self, clean_data):
+        if not clean_data.get('username', None):
+            raise ValidationError(
+                "Username field can't be blank."
+            )
+        user = User.objects.create_user(**clean_data)
+        return user
 
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=35)
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        if not username and not email:
+            raise serializers.ValidationError(
+                "Must include username or email."
+            )
+        else:
+            if not password:
+                raise serializers.ValidationError(
+                    'Must include "password"'
+                )
+            if email:
+                user = authenticate(
+                    request=self.context.get('request'),
+                    email=email,
+                    password=password
+                )
+            elif username:
+                user = authenticate(
+                    request=self.context.get('request'),
+                    username=username,
+                    password=password
+                )
+        data['user'] = user
+        return data
