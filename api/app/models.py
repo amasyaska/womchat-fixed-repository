@@ -59,7 +59,6 @@ class User(AbstractUser):
         if self.email:
             return self.email
         return self.username if self.username else ''
-      
 
 class Chat(models.Model):
     '''
@@ -75,5 +74,5 @@ class UserToChat(models.Model):
     '''
     join table to implement many-to-many relationship between User and Chat
     '''
-    user_id = models.ForeignKey(PseudoUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
