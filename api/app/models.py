@@ -60,19 +60,31 @@ class User(AbstractUser):
             return self.email
         return self.username if self.username else ''
 
+
 class Chat(models.Model):
     '''
     one-to-many relationship between Chat and Message
     '''
     pass
 
+
 class InstantMessage(models.Model):
     text = models.TextField()
-    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE,
+                                related_name='messages')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='messages')
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('date_added',)
+
 
 class UserToChat(models.Model):
     '''
     join table to implement many-to-many relationship between User and Chat
     '''
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    chat_id = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, 
+                                related_name='chats')
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE,
+                                related_name='users')

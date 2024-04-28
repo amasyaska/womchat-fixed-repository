@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -14,7 +15,7 @@ from rest_framework.authentication import (SessionAuthentication,
 def index(request):
     return render(request, 'index.html')
 
-  
+
 def staticfiles(request, filename):
     static_path = os.path.join(os.path.abspath(__file__), "..", "..", "..", "static")
     with open(os.path.join(static_path, filename), 'r') as f:
@@ -26,10 +27,11 @@ def staticfiles(request, filename):
             response['Content-Type'] = 'text/css; charset=utf-8'
     return response
 
+
 def chat(request):
     return render(request, 'chat.html')
 
-  
+
 def chat_json(request, chat_id):
     '''
     !!! implement check if user is allowed to read this chat here !!!
