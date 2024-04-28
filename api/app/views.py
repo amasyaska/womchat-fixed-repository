@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from ..api.settings import firebase
 from django.http import HttpResponse
+from django.http import JsonResponse
+
+from app.models import InstantMessage, Chat
 
 database = firebase.database()
 
@@ -17,3 +20,15 @@ def staticfiles(request, filename):
         if (filename.split('.')[-1] == 'css'):
             response['Content-Type'] = 'text/css; charset=utf-8'
     return response
+
+def chat(request):
+    return render(request, 'chat.html')
+
+def chat_json(request, chat_id):
+    '''
+    pseudo-code
+    dct = dict()
+    for message in chat_id:
+        dct[message_id] = message_text
+    return JsonResponse(dct)
+    '''

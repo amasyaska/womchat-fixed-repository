@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', app_views.index),
     path('staticfiles/<str:filename>/', app_views.staticfiles), # can't use name 'static' (reserved for Django specifically)
+    path('chat/', app_views.chat),
+    path('chat/<int:chat_id>', app_views.chat_json),
 ]
