@@ -1,21 +1,27 @@
 UserRegisterView:
     class based view with endpoint "/registration/" and method "post"
     that validate user's input data and, if data is valid, create a new
-    user and return Response with status 200. Otherwise with status 400
+    user and return status 200. Otherwise status 400
 
 UserAuthenticateView:
     class based view with endpoint "/login/" and method "post" that 
-    validates user's input data and returns Response with status 400 if
-    data is invalid, with status 401 if user with these credentials doesn't
-    exist, with status 200 otherwise.
+    validates user's input data and returns status 400 if
+    data is invalid, status 401 if user with these credentials doesn't
+    exist, status 200 otherwise.
 
 UserLogoutView:
     class based view with endpoint "/logout/" and method "post" to
     log out of user's account. If user is not authorized returns 
-    Response with status 401, otherwise with status 200.
+    status 401, otherwise status 200.
 
 UserDeleteView:
     class based view with endpoint "/delete_user/" and method post to
     make user's account inactive and log out from this account. After 
     that user can't use this account. If user is not authorized returns
-    Response with status 401, otherwise with status 200.
+    status 401, otherwise status 200.
+
+UserEditView:
+    class based view with endpoint "/edit_user/" and methods "post" 
+    and "get". "get" returns information about current user, "post"
+    changes user credentials. If everything okay, both methods also
+    return status 200
