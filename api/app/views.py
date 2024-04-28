@@ -26,6 +26,7 @@ def chat(request):
 
 def chat_json(request, chat_id):
     '''
+    !!! implement check if user is allowed to read this chat here !!!
     pseudo-code
     dct = dict()
     for message in chat_id:
