@@ -45,7 +45,7 @@ def chat_json(request, chat_id):
     message_to_user_and_text = dict()
     message_to_user_and_text["messages"] = []
     for message in InstantMessage.objects.filter(chat=chat_id):
-        message_to_user_and_text["messages"].append([message.id, message.user.id, message.text])
+        message_to_user_and_text["messages"].append([message.id, message.user.id, message.text, message.date_added])
     return JsonResponse(message_to_user_and_text)
     
 class UserRegisterView(APIView):
