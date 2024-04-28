@@ -25,5 +25,5 @@ class CustomIsAuthenticated(permissions.BasePermission):
     
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
-            raise GenericAPIException(detail="User isn't authenticated", status_code=401)
+            raise GenericAPIException(detail="User isn't authenticated.", status_code=401)
         return True

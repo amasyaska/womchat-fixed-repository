@@ -6,7 +6,7 @@ from app.models import InstantMessage, Chat
 from django.contrib.auth import logout, login
 from rest_framework.views import APIView
 from .serializers import UserRegisterSerializer, UserLoginSerializer
-from .permissions import IsNotAuthenticated
+from .permissions import IsNotAuthenticated, CustomIsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import (SessionAuthentication, 
@@ -72,3 +72,11 @@ class UserAuthenticateView(APIView):
             return Response(serializer.validated_data,
                             status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+class UserLogoutView(APIView):
+    permission_classes = (CustomIsAuthenticated,)
+
+    def post(self, request):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
