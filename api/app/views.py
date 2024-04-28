@@ -7,6 +7,7 @@ from django.contrib.auth import logout, login
 from rest_framework.views import APIView
 from .serializers import UserRegisterSerializer, UserLoginSerializer
 from .permissions import IsNotAuthenticated, CustomIsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import (SessionAuthentication, 
@@ -79,4 +80,16 @@ class UserLogoutView(APIView):
 
     def post(self, request):
         logout(request)
+        return Response(status=status.HTTP_200_OK)
+
+
+class UserDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        user.is_active = False
+        user.save()
+        logout(request)
+
         return Response(status=status.HTTP_200_OK)
