@@ -1,5 +1,5 @@
 import os
-from .models import InstantMessage, Chat
+from .models import InstantMessage, Chat, User, UserToChat
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import logout, login, update_session_auth_hash
@@ -148,3 +148,28 @@ class AllUserChatsView(APIView):
             data[chat.id] = [chat.title, 
                             chat.messages.latest('date_added').text]
         return Response(data=data, status=status.HTTP_200_OK)
+    
+
+class CreateChatWithUserView(APIView):
+    permission_classes = (CustomIsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            username = request.data.get('username')
+            if request.user.username == username:
+                raise 
+            user = User.objects.get(
+                username=request.data.get('username'))
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        chat_title = request.data.get('chat_title', 'new chat')
+        chat = Chat.objects.create(title=chat_title)
+        UserToChat(chat=chat, user=request.user).save()
+        UserToChat(chat=chat, user=user).save()
+
+        return Response(data={
+            'chat_title': chat_title,
+            'user_1': request.user.__str__(),
+            'user_2': user.__str__(),
+            }, status=status.HTTP_200_OK)
