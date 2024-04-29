@@ -16,12 +16,12 @@ urlpatterns = [
         app_views.UserEditView.as_view(), name='edit_user'),
     path('staticfiles/<str:filename>/', 
         app_views.staticfiles), # can't use name 'static' (reserved for Django specifically)
-    path('send/<int:chat_id>/', 
+    path('chats/<int:chat_id>/send/', 
         app_views.SendMessageView.as_view(), name='send_message'),
     path('chats/',
         app_views.AllUserChatsView.as_view(), name='chats'),
-    path('chats/create_chat/', 
-        app_views.CreateChatWithUserView.as_view(), name='create_chat'),
+    path('chats/create/', 
+        app_views.CreateChatView.as_view(), name='create_chat'),
     path('chat/<int:chat_id>', 
         app_views.chat_json),
 ]

@@ -125,11 +125,14 @@ class UserEditView(RetrieveUpdateAPIView):
 class SendMessageView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
-    def post(self, request, chat_id):
+    def post(self, request, chat_id: int):
         chat = Chat.objects.get(id=chat_id)
-        message_text = request.data.get('message', None)
+        message_text = request.data.get('message')
         if not message_text:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={'error': "You can't send empty message."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         message = InstantMessage(text=message_text,
                             chat=chat, user=request.user)
         message.save()
@@ -153,21 +156,35 @@ class AllUserChatsView(APIView):
         return Response(data=data, status=status.HTTP_200_OK)
     
 
-class CreateChatWithUserView(APIView):
+class CreateChatView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         try:
             username = request.data.get('username')
             if request.user.username == username:
                 raise ValueError("You can't create a chat with yourself.")
-            user = User.objects.get(
-                username=request.data.get('username'))
-        except (User.DoesNotExist, ValueError):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                data={'error': "User with this username doesn't exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValueError as e:
+            return Response(
+                data={'error': e},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
-        chat_type = request.data.get('chat_type', 0)
+        chat_type = request.data.get('chat_type')
+        users_list = request.data.get('users')
         if chat_type == 0:
+            if len(users_list) > 1:
+                return Response(
+                    data={
+                        'error': 'Private chat is only for two users.'
+                    }, status=status.HTTP_400_BAD_REQUEST
+                )
             private_chats_1 = set(
                 request.user.user_to_chat.values_list('chat_id')
             )
@@ -175,16 +192,18 @@ class CreateChatWithUserView(APIView):
                 user.user_to_chat.values_list('chat_id')
             )
             if private_chats_1 & private_chats_2:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    data={
+                        'error': 'You already have private chat with this user'
+                    }, status=status.HTTP_400_BAD_REQUEST
+                )
 
-        chat_title = request.data.get('chat_title', 'new chat')
+        chat_title = request.data.get('title')
         chat = Chat.objects.create(title=chat_title, 
                                 chat_type=chat_type)
         UserToChat(chat=chat, user=request.user).save()
-        UserToChat(chat=chat, user=user).save()
+        for username in users_list:
+            user = User.objects.get(username=username)
+            UserToChat(chat=chat, user=user).save()
 
-        return Response(data={
-            'chat_title': chat_title,
-            'user_1': request.user.__str__(),
-            'user_2': user.__str__(),
-            }, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)

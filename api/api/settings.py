@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-import pyrebase
 from decouple import config as env_config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
