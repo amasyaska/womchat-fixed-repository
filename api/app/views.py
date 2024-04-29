@@ -160,24 +160,8 @@ class CreateChatView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
     def post(self, request):
-        try:
-            username = request.data.get('username')
-            if request.user.username == username:
-                raise ValueError("You can't create a chat with yourself.")
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return Response(
-                data={'error': "User with this username doesn't exist"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except ValueError as e:
-            return Response(
-                data={'error': e},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        chat_type = request.data.get('chat_type')
         users_list = request.data.get('users')
+        chat_type = request.data.get('chat_type', 0)
         if chat_type == 0:
             if len(users_list) > 1:
                 return Response(
@@ -185,25 +169,43 @@ class CreateChatView(APIView):
                         'error': 'Private chat is only for two users.'
                     }, status=status.HTTP_400_BAD_REQUEST
                 )
-            private_chats_1 = set(
-                request.user.user_to_chat.values_list('chat_id')
-            )
-            private_chats_2 = set(
-                user.user_to_chat.values_list('chat_id')
-            )
+            try:
+                private_chats_1 = set(
+                    request.user.user_to_chat.values_list('chat_id')
+                )
+                private_chats_2 = set(
+                    User.objects.get(
+                        username=users_list[0]).user_to_chat.values_list('chat_id')
+                )
+            except User.DoesNotExist:
+                return Response(
+                    data={'error': 
+                        f"User with name {users_list[0]} doesn't exist."
+                    }, status=status.HTTP_400_BAD_REQUEST
+                )
             if private_chats_1 & private_chats_2:
                 return Response(
                     data={
-                        'error': 'You already have private chat with this user'
+                        'error': 'You already have private chat with this user.'
                     }, status=status.HTTP_400_BAD_REQUEST
                 )
 
-        chat_title = request.data.get('title')
+        chat_title = request.data.get('title', 'new chat')
+        users = []
+        for username in users_list:
+            try:
+                user = User.objects.get(username=username)
+                users.append(user)
+            except User.DoesNotExist:
+                return Response(
+                    data={
+                        'error': f"User with name {username} doesn't exist."
+                    }, status=status.HTTP_400_BAD_REQUEST
+                )
         chat = Chat.objects.create(title=chat_title, 
                                 chat_type=chat_type)
         UserToChat(chat=chat, user=request.user).save()
-        for username in users_list:
-            user = User.objects.get(username=username)
+        for user in users:
             UserToChat(chat=chat, user=user).save()
 
         return Response(status=status.HTTP_200_OK)
