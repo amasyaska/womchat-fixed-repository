@@ -1,8 +1,14 @@
 from rest_framework import serializers
+from django.core.validators import RegexValidator
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=35, required=True)
+    username = serializers.CharField(max_length=35, required=True,
+        validators=[
+            RegexValidator(
+                regex='^[a-zA-Z0-9_]+$',
+                message='You can use only letters, digits and underscore'
+        )])
 
     class Meta:
         model = User
