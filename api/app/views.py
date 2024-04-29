@@ -13,10 +13,6 @@ from rest_framework import status
 from rest_framework.authentication import (SessionAuthentication, 
     authenticate)
 
-def index(request):
-    return render(request, 'index.html')
-
-
 def staticfiles(request, filename):
     static_path = os.path.join(os.path.abspath(__file__), "..", "..", "..", "static")
     with open(os.path.join(static_path, filename), 'r') as f:
@@ -74,6 +70,7 @@ class UserInfoView(APIView):
         serializer = UserSerializer(instance=request.user)
         data = serializer.data
         data.pop('password')
+        data['special_mode'] = request.user.special_mode
         return Response(data=data, status=status.HTTP_200_OK)
 
 
