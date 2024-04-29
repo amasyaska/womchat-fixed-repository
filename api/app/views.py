@@ -141,12 +141,15 @@ class AllUserChatsView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
     def get(self, request):
-        user_to_chats = request.user.chats.all()
+        user_to_chats = request.user.user_to_chat.all()
         data = {}
         for user_to_chat in user_to_chats:
             chat = user_to_chat.chat
-            data[chat.id] = [chat.title, 
-                            chat.messages.latest('date_added').text]
+            try:
+                last_message = chat.messages.latest('date_added').text
+            except InstantMessage.DoesNotExist:
+                last_message = ''
+            data[chat.id] = [chat.title, last_message]
         return Response(data=data, status=status.HTTP_200_OK)
     
 

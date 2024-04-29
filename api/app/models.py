@@ -98,9 +98,9 @@ class UserToChat(models.Model):
     join table to implement many-to-many relationship between User and Chat
     '''
     user = models.ForeignKey(User, on_delete=models.CASCADE, 
-                                related_name='chats')
+                                related_name='user_to_chat')
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE,
-                                related_name='users')
+                                related_name='user_to_chat')
     
     def __str__(self) -> str:
         return f'user: {self.user}, chat: {self.chat}'
