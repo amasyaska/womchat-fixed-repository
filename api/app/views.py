@@ -157,10 +157,10 @@ class CreateChatWithUserView(APIView):
         try:
             username = request.data.get('username')
             if request.user.username == username:
-                raise 
+                raise ValueError("You can't create a chat with yourself.")
             user = User.objects.get(
                 username=request.data.get('username'))
-        except User.DoesNotExist:
+        except (User.DoesNotExist, ValueError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         chat_title = request.data.get('chat_title', 'new chat')
