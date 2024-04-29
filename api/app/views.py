@@ -129,13 +129,13 @@ class SendMessageView(APIView):
         chat = Chat.objects.get(id=chat_id)
         message_text = request.data.get('message', None)
         if not message_text:
-            raise ValueError('empty message.')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         message = InstantMessage(text=message_text,
                             chat=chat, user=request.user)
         message.save()
 
         return Response(status=status.HTTP_200_OK)
-    
+
 
 class AllUserChatsView(APIView):
     permission_classes = (CustomIsAuthenticated,)
@@ -165,9 +165,21 @@ class CreateChatWithUserView(APIView):
                 username=request.data.get('username'))
         except (User.DoesNotExist, ValueError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        chat_type = request.data.get('chat_type', 0)
+        if chat_type == 0:
+            private_chats_1 = set(
+                request.user.user_to_chat.values_list('chat_id')
+            )
+            private_chats_2 = set(
+                user.user_to_chat.values_list('chat_id')
+            )
+            if private_chats_1 & private_chats_2:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
         chat_title = request.data.get('chat_title', 'new chat')
-        chat = Chat.objects.create(title=chat_title)
+        chat = Chat.objects.create(title=chat_title, 
+                                chat_type=chat_type)
         UserToChat(chat=chat, user=request.user).save()
         UserToChat(chat=chat, user=user).save()
 
