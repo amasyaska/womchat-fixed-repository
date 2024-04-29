@@ -66,6 +66,15 @@ class Chat(models.Model):
     '''
     one-to-many relationship between Chat and Message
     '''
+    class ChatType(models.IntegerChoices):
+        PRIVATE = 0, 'Private'
+        GROUP = 1, 'Group'
+
+    chat_type = models.IntegerField(
+        choices=ChatType.choices,
+        default=ChatType.PRIVATE,
+        verbose_name='type'
+    )
     title = models.CharField(max_length=255)
 
     def __str__(self) -> str:
