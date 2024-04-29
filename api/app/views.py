@@ -29,22 +29,6 @@ def staticfiles(request, filename):
     return response
 
 
-def chat_json(request, chat_id):
-    '''
-    !!! implement check if user is allowed to read this chat here !!!
-    pseudo-code
-    dct = dict()
-    for message in chat_id:
-        dct[message_id] = message_text
-    return JsonResponse(dct)
-    '''
-    message_to_user_and_text = dict()
-    message_to_user_and_text["messages"] = []
-    for message in InstantMessage.objects.filter(chat=chat_id):
-        message_to_user_and_text["messages"].append([message.id, message.user.id, message.text, message.date_added])
-    return JsonResponse(message_to_user_and_text)
-
-
 class UserRegisterView(CreateAPIView):
     permission_classes = (IsNotAuthenticated,)
     serializer_class = UserSerializer
@@ -81,12 +65,22 @@ class UserLogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
+    
+
+class UserInfoView(APIView):
+    permission_classes = (CustomIsAuthenticated,)
+
+    def get(self, request):
+        serializer = UserSerializer(instance=request.user)
+        data = serializer.data
+        data.pop('password')
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 class UserDeleteView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
-    def post(self, request):
+    def delete(self, request):
         user = request.user
         user.is_active = False
         user.save()
@@ -104,8 +98,7 @@ class UserEditView(RetrieveUpdateAPIView):
             instance=request.user)
         data = serializer.data
         data.pop('password')
-        return Response(data=data,
-                        status=status.HTTP_200_OK)
+        return Response(data=data, status=status.HTTP_200_OK)
     
     def get_queryset(self):
         return self.request.user
