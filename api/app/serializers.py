@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, InstantMessage
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=35, required=True,
@@ -50,3 +50,16 @@ class UserLoginSerializer(serializers.Serializer):
                     'Must include "password"'
                 )
         return data    
+    
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InstantMessage
+        fields = ('user', 'text', 'date_added')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        user_id = data.pop('user')
+        data['username'] = User.objects.get(id=user_id).username
+        return data

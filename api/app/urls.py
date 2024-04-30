@@ -21,10 +21,12 @@ urlpatterns = [
     path('staticfiles/<str:filename>/', 
         app_views.staticfiles), # can't use name 'static' (reserved for Django specifically)
     
-    path('chats/<int:chat_id>/send/', 
-        app_views.SendMessageView.as_view(), name='send_message'),
     path('chats/',
         app_views.AllUserChatsView.as_view(), name='chats'),
+    path('chats/<int:chat_id>/', app_views.ChatView.as_view(),
+        name='chat'),
+    path('chats/<int:chat_id>/send/', 
+        app_views.SendMessageView.as_view(), name='send_message'),
     path('chats/create/', 
         app_views.CreateChatView.as_view(), name='create_chat'),
 ]

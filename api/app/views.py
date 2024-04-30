@@ -1,12 +1,12 @@
 import os
 from .models import InstantMessage, Chat, User, UserToChat
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.contrib.auth import logout, login, update_session_auth_hash
 from rest_framework.views import APIView
 from rest_framework.generics import (RetrieveUpdateAPIView, 
-    CreateAPIView)
-from .serializers import (UserSerializer, UserLoginSerializer)
+    CreateAPIView, ListAPIView)
+from .serializers import (UserSerializer, UserLoginSerializer,
+    MessageSerializer)
 from .permissions import IsNotAuthenticated, CustomIsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -128,6 +128,22 @@ class SendMessageView(APIView):
         message.save()
 
         return Response(status=status.HTTP_200_OK)
+
+
+class ChatView(ListAPIView):
+    permission_classes = (CustomIsAuthenticated,)
+    serializer_class = MessageSerializer
+
+    def get(self, request, chat_id):
+        chat = Chat.objects.get(id=chat_id)
+        messages = self.get_serializer(
+            instance=chat.messages.all(), many=True
+        )
+        print(messages.data)
+        return Response(
+            data={'messages': messages.data},
+            status=status.HTTP_200_OK
+        )
 
 
 class AllUserChatsView(APIView):
