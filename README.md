@@ -48,3 +48,12 @@ gunicorn -c conf/gunicorn_config.py api.wsgi
 ```
 
 to be continued...
+
+## set up SSL on Nginx
+1. Change /nginx/Dockerfile:
+   ```COPY ./http.conf /etc/nginx/conf.d/default.conf``` to ```COPY ./https.conf /etc/nginx/conf.d/default.conf```
+2. Add your certificate to:
+  ```/etc/nginx/ssl/your_cert.crt``` (! your certificate have to be named your_cert.crt)
+3. Add your key to:
+  ```/etc/nginx/ssl/your_key.key``` (! your key have to be named your_cert.crt)
+4. Enjoy
