@@ -1,25 +1,27 @@
 # womchat backend
 ## API
 ### endpoints:
-  - ```/send/<int:chat_id>```
-    - POST: takes POST request from user (requires cookies) and sends message from this user to given chat_id (adds message record to InstantMessage talbe)
-  - ```/chat/<int:chat_id>```
-    - GET: returns JSON with all messages in chat by given chat_id (requires cookies) in format: ```{"messages": [message_id, user_id, message_text, date_added]}```
-  - ```/chats```
-    - GET: returns JSON with all user chats in format: ```{chat_id1: [chat_title, last_message_text], chat_id2: [...}```
-  - ```/chats/create_chat/<str:username>```
-    - POST: creates chat with user by username
-  - ```/resigstration```
+  - ```/chats/<int:chat_id>/send/```
+    - POST: takes POST request from user (requires cookies) and sends message from this user to given chat_id (adds message record to InstantMessage table)
+  - ```/chats/<int:chat_id>/```
+    - GET: returns JSON with all messages in chat by given chat_id (requires cookies) in format: ```{"messages": [{"id": chat_id, "text": message_text, "timestamp": date_added, "username": username, "is_own": is_own}, {...}]}```
+  - ```/chats/```
+    - GET: returns JSON with all user chats in format: ```"{chats": [{"id": chat_id, "title": chat_title, "chat_type": chat_type, "last_message": last_message}, {...}]}```
+  - ```/chats/create/```
+    - POST: creates chat with user by given username with given title and chat_type
+  - ```/resigstration/```
     - POST: serializes user to auth_user table (modified standard Django user model)
-  - ```/login```
+  - ```/login/```
     - POST: used to login user, checks data validity
-  - ```/logout```
+  - ```/logout/```
     - POST: used to logout user
-  - ```/delete_user```
+  - ```/user/delete/```
     - POST: used to deactivate logout user
-  - ```/edit_user```
+  - ```/user/edit/```
     - UPDATE: takes request data, checks their validity and updates data in database and updates session hash.
-    - GET: returns JSON user data.
+    - GET: returns JSON user data in format: ```{"username": username, "email": email, "special_mode": special_mode}```.
+  - ```/user/info/```
+    - GET: returns JSON user data in format: ```{"username": username, "email": email, "special_mode": special_mode}```.
 ## Server setup
 ### Project scheme:
 Client ---> Nginx (reverse proxy) -> Gunicorn (WSGI) -> Django (Application).
