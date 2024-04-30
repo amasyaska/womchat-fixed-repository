@@ -53,13 +53,18 @@ class UserLoginSerializer(serializers.Serializer):
     
 
 class MessageSerializer(serializers.ModelSerializer):
+    timestamp = serializers.DateTimeField(source='date_added')
 
     class Meta:
         model = InstantMessage
-        fields = ('user', 'text', 'date_added')
+        fields = ('id', 'user', 'text', 'timestamp')
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         user_id = data.pop('user')
         data['username'] = User.objects.get(id=user_id).username
+        if self.context['request'].user.username == data['username']:
+            data['is_own'] = True
+        else:
+            data['is_own'] = False
         return data

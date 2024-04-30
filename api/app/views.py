@@ -146,7 +146,6 @@ class ChatView(ListAPIView):
         messages = self.get_serializer(
             instance=chat.messages.all(), many=True
         )
-        print(messages.data)
         return Response(
             data={'messages': messages.data},
             status=status.HTTP_200_OK
