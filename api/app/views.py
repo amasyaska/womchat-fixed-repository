@@ -161,7 +161,7 @@ class AllUserChatsView(APIView):
                     request.user.user_to_chat.all()))
         serializer = ChatSerializer(instance=chats, many=True)
         data = serializer.data
-        return Response(data=data, status=status.HTTP_200_OK)
+        return Response(data={"chats": data}, status=status.HTTP_200_OK)
     
 
 class CreateChatView(APIView):
