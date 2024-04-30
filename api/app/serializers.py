@@ -56,7 +56,7 @@ class ChatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
-        fields = ('title', 'chat_type')
+        fields = ('id', 'title', 'chat_type')
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
