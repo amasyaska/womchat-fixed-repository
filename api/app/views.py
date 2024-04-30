@@ -136,6 +136,13 @@ class ChatView(ListAPIView):
 
     def get(self, request, chat_id):
         chat = Chat.objects.get(id=chat_id)
+        try:
+            UserToChat.objects.get(user=request.user, chat=chat)
+        except UserToChat.DoesNotExist:
+            return Response(
+                data={'error': "You are not a member of this chat."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         messages = self.get_serializer(
             instance=chat.messages.all(), many=True
         )
