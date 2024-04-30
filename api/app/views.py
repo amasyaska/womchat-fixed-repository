@@ -1,4 +1,5 @@
 import os
+from django.db.models.query import QuerySet
 from .models import InstantMessage, Chat, User, UserToChat
 from django.http import HttpResponse
 from django.contrib.auth import logout, login, update_session_auth_hash
@@ -6,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import (RetrieveUpdateAPIView, 
     CreateAPIView, ListAPIView)
 from .serializers import (UserSerializer, UserLoginSerializer,
-    MessageSerializer)
+    MessageSerializer, ChatSerializer)
 from .permissions import IsNotAuthenticated, CustomIsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -156,15 +157,10 @@ class AllUserChatsView(APIView):
     permission_classes = (CustomIsAuthenticated,)
 
     def get(self, request):
-        user_to_chats = request.user.user_to_chat.all()
-        data = {}
-        for user_to_chat in user_to_chats:
-            chat = user_to_chat.chat
-            try:
-                last_message = chat.messages.latest('date_added').text
-            except InstantMessage.DoesNotExist:
-                last_message = ''
-            data[chat.id] = [chat.title, last_message]
+        chats = list(map(lambda instance: instance.chat, 
+                    request.user.user_to_chat.all()))
+        serializer = ChatSerializer(instance=chats, many=True)
+        data = serializer.data
         return Response(data=data, status=status.HTTP_200_OK)
     
 

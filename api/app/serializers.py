@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.core.validators import RegexValidator
-from .models import User, InstantMessage
+from .models import User, InstantMessage, Chat
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=35, required=True,
@@ -49,8 +49,23 @@ class UserLoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     'Must include "password"'
                 )
-        return data    
-    
+        return data   
+
+
+class ChatSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Chat
+        fields = ('title', 'chat_type')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        try:
+            last_message = instance.messages.latest('date_added').text
+        except InstantMessage.DoesNotExist:
+            last_message = ""
+        data['last_message'] = last_message
+        return data
 
 class MessageSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField(source='date_added')
